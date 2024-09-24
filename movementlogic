@@ -1,0 +1,86 @@
+using System.Collections;
+using UnityEngine;
+
+public class CharacterMovement : MonoBehaviour
+{
+    public float moveSpeed = 5f; // Speed of the character movement
+    private Rigidbody2D rb;
+    private bool isFacingRight = true;
+    public Animator animator; // Reference to the Animator component
+    public Transform atatckpoint;
+    public float attackRange = 0.4f;
+    public LayerMask enemyLayers;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        rb.gravityScale = 0;
+        rb.freezeRotation = true;
+        animator = GetComponent<Animator>(); // Assign the Animator component
+    }
+
+    void Update()
+    {
+        HandleMovement();
+        HandleAttack();
+    }
+
+    private void HandleMovement()
+    {
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+
+        Vector2 movement = new Vector2(moveX, moveY).normalized;
+        rb.velocity = movement * moveSpeed;
+
+        bool isMoving = movement.sqrMagnitude > 0.01f;
+        animator.SetBool("IsMoving", isMoving);
+
+        if (moveX > 0 && !isFacingRight)
+        {
+            Flip();
+        }
+        else if (moveX < 0 && isFacingRight)
+        {
+            Flip();
+        }
+    }
+
+    private void HandleAttack()
+    {
+        // Handle attack input with Space bar
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Debug.Log("Space bar pressed and Attack triggered.");
+            PlayAttackAnimation();
+        }
+    }
+
+    void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        Vector3 theScale = transform.localScale;
+        theScale.x *= -1;
+        transform.localScale = theScale;
+    }
+
+    void PlayAttackAnimation()
+    {
+        animator.SetTrigger("Attack"); // Use the "Attack" trigger in the Animator
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("Collided with: " + collision.gameObject.name);
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        Debug.Log("Still colliding with: " + collision.gameObject.name);
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        Debug.Log("Stopped colliding with: " + collision.gameObject.name);
+    }
+}
