@@ -1,0 +1,48 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerCombat : MonoBehaviour
+{
+
+    public Animator animator;
+    public Transform AttackPoint;
+    public float attackRange = 0.5f;  // range of attack - w.r.t the sword 
+
+    // script for layering enemies - sword can only be used against those in those layers using a layermask 
+    public LayerMask enemyLayers;
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Attack();
+        }
+
+        void Attack()
+        {
+            //playing attack animation 
+            animator.SetTrigger("Attack");
+
+
+            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(AttackPoint.position, attackRange, enemyLayers);  // this function creates a circle around the sword that detects enemylayers hits enemies 
+
+            // now as we know where the enemies are present due to this array that stores all the data we move on to the damage section 
+
+            //damage
+
+            foreach (Collider2D enemy in hitEnemies)
+            {
+                Debug.Log("we hit " + enemy.name);
+            }
+
+        }
+        void OnDrawGizmosSelected()
+        {
+            if (AttackPoint == null)
+                return;
+
+            Gizmos.DrawWireSphere(AttackPoint.position, attackRange);
+        }
+    }
+
+}
